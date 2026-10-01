@@ -1,0 +1,127 @@
+{
+  "atlasSize": 1000,
+  "variants": {
+    "8x8": {
+      "model": "/models/banner-8x8.glb",
+      "surfaces": [
+        {
+          "id": "face-front",
+          "group": "face",
+          "side": "front",
+          "polygon": [
+            [
+              20,
+              20
+            ],
+            [
+              490,
+              20
+            ],
+            [
+              490,
+              490
+            ],
+            [
+              20,
+              490
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 96,
+            "heightIn": 96
+          }
+        },
+        {
+          "id": "face-back",
+          "group": "face",
+          "side": "back",
+          "polygon": [
+            [
+              510,
+              20
+            ],
+            [
+              980,
+              20
+            ],
+            [
+              980,
+              490
+            ],
+            [
+              510,
+              490
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 96,
+            "heightIn": 96
+          }
+        }
+      ]
+    },
+    "10x8": {
+      "model": "/models/banner-10x8.glb",
+      "surfaces": [
+        {
+          "id": "face-front",
+          "group": "face",
+          "side": "front",
+          "polygon": [
+            [
+              20,
+              20
+            ],
+            [
+              490,
+              20
+            ],
+            [
+              490,
+              396
+            ],
+            [
+              20,
+              396
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 120,
+            "heightIn": 96
+          }
+        },
+        {
+          "id": "face-back",
+          "group": "face",
+          "side": "back",
+          "polygon": [
+            [
+              510,
+              20
+            ],
+            [
+              980,
+              20
+            ],
+            [
+              980,
+              396
+            ],
+            [
+              510,
+              396
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 120,
+            "heightIn": 96
+          }
+        }
+      ]
+    }
+  }
+}

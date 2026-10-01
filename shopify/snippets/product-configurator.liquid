@@ -1,0 +1,36 @@
+{% comment %}
+  Product configurator launcher. Render from a product template or section:
+    {% render 'product-configurator', product: product, configurator_product: 'canopy-tent' %}
+
+  Needs the configurator host in settings (theme setting `configurator_url`), and that host's
+  Content-Security-Policy frame-ancestors must include this shop's domain.
+{% endcomment %}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  # Preselected configurator options: a JSON variant metafield, e.g. {"size":"8x8","package":"canopy-frame"}
+  assign preset = variant.metafields.configurator.options.value
+-%}
+<div
+  class="product-configurator"
+  data-product-configurator
+  data-configurator-url="{{ settings.configurator_url | default: 'https://tent-configurator.netlify.app' }}"
+  data-product="{{ configurator_product | default: 'canopy-tent' }}"
+  data-variant-id="{{ variant.id }}"
+  data-options="{% if preset %}{{ preset | json | escape }}{% else %}{}{% endif %}"
+>
+  <button type="button" class="button button--primary" data-configurator-open>
+    {{ 'Customize your design' }}
+  </button>
+  <p class="product-configurator__price" aria-live="polite">
+    <span data-configurator-price>{{ variant.price | money }}</span>
+  </p>
+</div>
+<script src="{{ settings.configurator_url | default: 'https://tent-configurator.netlify.app' }}/embed/product-configurator.js" defer></script>
+
+{%- comment -%}
+  Line item properties written by the configurator appear in cart/checkout automatically.
+  Hidden ones (prefixed "_") carry: _design_id, _quote_id, _quote_unit_price, _quote_total,
+  _quote_currency, _quote_expires, _quote_signature, _config_hash, _design_url, _preview_url.
+  To show the preview thumbnail in the cart template:
+    {% if item.properties._preview_url %}<img src="{{ item.properties._preview_url }}" width="120" alt="">{% endif %}
+{%- endcomment -%}

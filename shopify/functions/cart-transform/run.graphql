@@ -1,0 +1,12 @@
+# Reference input query for a Cart Transform Function (not deployed in this demo).
+query RunInput {
+  cart {
+    lines {
+      id
+      quantity
+      unitPrice: attribute(key: "_quote_unit_price") { value }
+      currency: attribute(key: "_quote_currency") { value }
+      signature: attribute(key: "_quote_signature") { value }
+    }
+  }
+}

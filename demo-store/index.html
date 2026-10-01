@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo Store · Configurator Embed</title>
+    <meta name="description" content="A mock Shopify product page that embeds the configurator in an iframe and receives the cart line." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  </head>
+  <body>
+    <header class="shop-header">
+      <a class="shop-logo" href="./">Canopy&nbsp;Co.</a>
+      <span class="shop-tag">Demo store: a stand-in for a Shopify theme</span>
+      <button type="button" class="cart-button" data-cart-toggle aria-label="Open cart">Cart <span data-cart-count>0</span></button>
+    </header>
+
+    <main class="shop-main">
+      <section class="product-media" aria-label="Product image">
+        <svg viewBox="0 0 400 300" role="img" aria-label="Canopy tent illustration">
+          <defs>
+            <linearGradient id="roof" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#f1c56b" />
+              <stop offset="1" stop-color="#e2a83a" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="200" cy="268" rx="150" ry="14" fill="#000" opacity=".08" />
+          <path d="M200 40 64 120h272z" fill="url(#roof)" />
+          <path d="M64 120h272v26H64z" fill="#e9b44c" />
+          <path d="M200 40 64 120M200 40l136 80" stroke="#c99436" stroke-width="2" fill="none" />
+          <path d="M76 146v120M324 146v120M120 140v116M280 140v116" stroke="#9aa0a8" stroke-width="5" stroke-linecap="round" />
+          <text x="200" y="138" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="15" fill="#16171a">YOUR LOGO</text>
+        </svg>
+      </section>
+
+      <section class="product-info">
+        <p class="eyebrow">Event tents</p>
+        <h1>Custom Logo Canopy Tent</h1>
+        <p class="lede">Dye-sublimation printed canopy on a hex aluminium frame. Design every roof panel and valance, see it in 3D, and order.</p>
+
+        <div
+          class="configurator-launcher"
+          data-product-configurator
+          data-configurator-url=""
+          data-product="canopy-tent"
+          data-variant-id="48270445412005"
+          data-options='{"size":"8x8"}'
+        >
+          <fieldset class="size-picker">
+            <legend>Size</legend>
+            <label><input type="radio" name="size" value="5x5" data-variant="48270445412001" /> 5' × 5'</label>
+            <label><input type="radio" name="size" value="6.5x6.5" data-variant="48270445412003" /> 6.5' × 6.5'</label>
+            <label><input type="radio" name="size" value="8x8" data-variant="48270445412005" checked /> 8' × 8'</label>
+          </fieldset>
+          <button type="button" class="shop-button" data-configurator-open>Customize your tent</button>
+          <p class="configured-price">Configured price: <strong data-configurator-price>open the designer</strong></p>
+        </div>
+
+        <details class="how">
+          <summary>What happens when you click "Add to cart" in the designer</summary>
+          <ol>
+            <li>The configurator (an iframe on another origin) gets a signed quote from the pricing API.</li>
+            <li>It saves the design, renders previews and attaches a production PDF.</li>
+            <li>It posts <code>add-to-cart</code> to this page with the variant id and line item properties.</li>
+            <li>This page's embed script calls <code>/cart/add.js</code> (mocked here) and replies with the result.</li>
+            <li>The cart verifies the quote signature with <code>POST /api/quote/verify</code>, as an order webhook would.</li>
+          </ol>
+        </details>
+      </section>
+    </main>
+
+    <aside class="cart-drawer" data-cart hidden aria-label="Cart">
+      <header>
+        <h2>Cart</h2>
+        <button type="button" data-cart-toggle aria-label="Close cart">×</button>
+      </header>
+      <div data-cart-items></div>
+      <footer>
+        <div class="cart-total"><span>Subtotal</span><strong data-cart-total>₹0</strong></div>
+        <button type="button" class="shop-button" disabled>Checkout (demo)</button>
+        <button type="button" class="link-button" data-cart-clear>Clear cart</button>
+      </footer>
+    </aside>
+
+    <script type="module" src="./demo.ts"></script>
+    <script src="/embed/product-configurator.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,687 @@
+{
+  "atlasSize": 1000,
+  "variants": {
+    "5x5": {
+      "model": "/models/tent-5x5.glb",
+      "shadeMap": "/models/tent-5x5-shade.webp",
+      "surfaces": [
+        {
+          "id": "valance-front",
+          "group": "valance",
+          "side": "front",
+          "polygon": [
+            [
+              257.3,
+              881.6
+            ],
+            [
+              746.4,
+              886.2
+            ],
+            [
+              744.2,
+              968.1
+            ],
+            [
+              257.8,
+              968.1
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 59.8,
+            "heightIn": 12.8
+          }
+        },
+        {
+          "id": "valance-right",
+          "group": "valance",
+          "side": "right",
+          "polygon": [
+            [
+              877.2,
+              243.4
+            ],
+            [
+              964.6,
+              244.5
+            ],
+            [
+              960.8,
+              732
+            ],
+            [
+              876.9,
+              732.5
+            ]
+          ],
+          "uprightRotation": -90,
+          "physical": {
+            "widthIn": 59.7,
+            "heightIn": 12.8
+          }
+        },
+        {
+          "id": "valance-back",
+          "group": "valance",
+          "side": "back",
+          "polygon": [
+            [
+              258.5,
+              34.9
+            ],
+            [
+              738.9,
+              34.2
+            ],
+            [
+              738.2,
+              121.2
+            ],
+            [
+              256.4,
+              116.5
+            ]
+          ],
+          "uprightRotation": 180,
+          "physical": {
+            "widthIn": 59.3,
+            "heightIn": 12.8
+          }
+        },
+        {
+          "id": "valance-left",
+          "group": "valance",
+          "side": "left",
+          "polygon": [
+            [
+              24.3,
+              257.9
+            ],
+            [
+              108.2,
+              257.3
+            ],
+            [
+              108.2,
+              740.7
+            ],
+            [
+              21.3,
+              736
+            ]
+          ],
+          "uprightRotation": 90,
+          "physical": {
+            "widthIn": 59.4,
+            "heightIn": 12.8
+          }
+        },
+        {
+          "id": "roof-front",
+          "group": "roof",
+          "side": "front",
+          "polygon": [
+            [
+              505.9,
+              536.7
+            ],
+            [
+              737.6,
+              869.8
+            ],
+            [
+              255.9,
+              868.6
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 59.7,
+            "heightIn": 45
+          }
+        },
+        {
+          "id": "roof-right",
+          "group": "roof",
+          "side": "right",
+          "polygon": [
+            [
+              535.2,
+              491
+            ],
+            [
+              862.3,
+              256.7
+            ],
+            [
+              857.3,
+              731.6
+            ],
+            [
+              531.9,
+              504.4
+            ]
+          ],
+          "uprightRotation": -90,
+          "physical": {
+            "widthIn": 59.6,
+            "heightIn": 45.4
+          }
+        },
+        {
+          "id": "roof-back",
+          "group": "roof",
+          "side": "back",
+          "polygon": [
+            [
+              292.9,
+              130.6
+            ],
+            [
+              740.2,
+              133.7
+            ],
+            [
+              495,
+              464.6
+            ],
+            [
+              257.5,
+              137.7
+            ]
+          ],
+          "uprightRotation": 180,
+          "physical": {
+            "widthIn": 59.3,
+            "heightIn": 45
+          }
+        },
+        {
+          "id": "roof-left",
+          "group": "roof",
+          "side": "left",
+          "polygon": [
+            [
+              127.8,
+              260.7
+            ],
+            [
+              452.3,
+              499.6
+            ],
+            [
+              119.5,
+              740.1
+            ],
+            [
+              117,
+              557.6
+            ]
+          ],
+          "uprightRotation": 90,
+          "physical": {
+            "widthIn": 59.4,
+            "heightIn": 45
+          }
+        }
+      ]
+    },
+    "6.5x6.5": {
+      "model": "/models/tent-6.5x6.5.glb",
+      "shadeMap": "/models/tent-6.5x6.5-shade.webp",
+      "surfaces": [
+        {
+          "id": "valance-front",
+          "group": "valance",
+          "side": "front",
+          "polygon": [
+            [
+              268.8,
+              890.6
+            ],
+            [
+              729.4,
+              891.7
+            ],
+            [
+              727.5,
+              993.4
+            ],
+            [
+              268.9,
+              990.8
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 77.2,
+            "heightIn": 13.4
+          }
+        },
+        {
+          "id": "valance-right",
+          "group": "valance",
+          "side": "right",
+          "polygon": [
+            [
+              892.2,
+              269
+            ],
+            [
+              993.7,
+              271.1
+            ],
+            [
+              990.9,
+              729.6
+            ],
+            [
+              890.8,
+              729.6
+            ]
+          ],
+          "uprightRotation": -90,
+          "physical": {
+            "widthIn": 77.3,
+            "heightIn": 13.4
+          }
+        },
+        {
+          "id": "valance-back",
+          "group": "valance",
+          "side": "back",
+          "polygon": [
+            [
+              268.9,
+              7.9
+            ],
+            [
+              724.2,
+              12
+            ],
+            [
+              723.9,
+              112.2
+            ],
+            [
+              263.4,
+              110.2
+            ]
+          ],
+          "uprightRotation": 180,
+          "physical": {
+            "widthIn": 77.3,
+            "heightIn": 13.4
+          }
+        },
+        {
+          "id": "valance-left",
+          "group": "valance",
+          "side": "left",
+          "polygon": [
+            [
+              10.2,
+              274
+            ],
+            [
+              110.4,
+              273.8
+            ],
+            [
+              109.2,
+              734.4
+            ],
+            [
+              6.6,
+              728.2
+            ]
+          ],
+          "uprightRotation": 90,
+          "physical": {
+            "widthIn": 77.3,
+            "heightIn": 13.4
+          }
+        },
+        {
+          "id": "roof-front",
+          "group": "roof",
+          "side": "front",
+          "polygon": [
+            [
+              271.8,
+              880.6
+            ],
+            [
+              499.8,
+              519.3
+            ],
+            [
+              507.1,
+              521.2
+            ],
+            [
+              727.2,
+              880.4
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 77.1,
+            "heightIn": 52.9
+          }
+        },
+        {
+          "id": "roof-right",
+          "group": "roof",
+          "side": "right",
+          "polygon": [
+            [
+              522.9,
+              492.9
+            ],
+            [
+              881.7,
+              272.8
+            ],
+            [
+              881.8,
+              728.8
+            ],
+            [
+              523,
+              504.1
+            ]
+          ],
+          "uprightRotation": -90,
+          "physical": {
+            "widthIn": 77.2,
+            "heightIn": 53
+          }
+        },
+        {
+          "id": "roof-back",
+          "group": "roof",
+          "side": "back",
+          "polygon": [
+            [
+              270.6,
+              123.9
+            ],
+            [
+              726.6,
+              121.2
+            ],
+            [
+              499.6,
+              483.7
+            ],
+            [
+              492.7,
+              481.4
+            ],
+            [
+              269.1,
+              133.7
+            ]
+          ],
+          "uprightRotation": 180,
+          "physical": {
+            "widthIn": 77.2,
+            "heightIn": 52.9
+          }
+        },
+        {
+          "id": "roof-left",
+          "group": "roof",
+          "side": "left",
+          "polygon": [
+            [
+              120.5,
+              271.9
+            ],
+            [
+              481.4,
+              501.1
+            ],
+            [
+              479.2,
+              508.1
+            ],
+            [
+              120.3,
+              727.8
+            ]
+          ],
+          "uprightRotation": 90,
+          "physical": {
+            "widthIn": 77.2,
+            "heightIn": 52.9
+          }
+        }
+      ]
+    },
+    "8x8": {
+      "model": "/models/tent-8x8.glb",
+      "shadeMap": "/models/tent-8x8-shade.webp",
+      "surfaces": [
+        {
+          "id": "valance-front",
+          "group": "valance",
+          "side": "front",
+          "polygon": [
+            [
+              212,
+              900
+            ],
+            [
+              784.2,
+              901
+            ],
+            [
+              781.4,
+              974.9
+            ],
+            [
+              212.9,
+              971.3
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 95.1,
+            "heightIn": 13.8
+          }
+        },
+        {
+          "id": "valance-right",
+          "group": "valance",
+          "side": "right",
+          "polygon": [
+            [
+              897.2,
+              227
+            ],
+            [
+              971.2,
+              229.1
+            ],
+            [
+              971.2,
+              798.3
+            ],
+            [
+              896.9,
+              799.9
+            ]
+          ],
+          "uprightRotation": -90,
+          "physical": {
+            "widthIn": 95.2,
+            "heightIn": 13.8
+          }
+        },
+        {
+          "id": "valance-back",
+          "group": "valance",
+          "side": "back",
+          "polygon": [
+            [
+              218.9,
+              32
+            ],
+            [
+              788.2,
+              32.1
+            ],
+            [
+              789.2,
+              107.4
+            ],
+            [
+              217.8,
+              107.4
+            ]
+          ],
+          "uprightRotation": 180,
+          "physical": {
+            "widthIn": 95.1,
+            "heightIn": 13.8
+          }
+        },
+        {
+          "id": "valance-left",
+          "group": "valance",
+          "side": "left",
+          "polygon": [
+            [
+              17.3,
+              226.1
+            ],
+            [
+              88.5,
+              225.8
+            ],
+            [
+              87.6,
+              798.1
+            ],
+            [
+              13.2,
+              796.6
+            ]
+          ],
+          "uprightRotation": 90,
+          "physical": {
+            "widthIn": 95.2,
+            "heightIn": 13.8
+          }
+        },
+        {
+          "id": "roof-front",
+          "group": "roof",
+          "side": "front",
+          "polygon": [
+            [
+              497.4,
+              536.5
+            ],
+            [
+              779.5,
+              891.1
+            ],
+            [
+              210.8,
+              890
+            ]
+          ],
+          "uprightRotation": 0,
+          "physical": {
+            "widthIn": 95.4,
+            "heightIn": 63.2
+          }
+        },
+        {
+          "id": "roof-right",
+          "group": "roof",
+          "side": "right",
+          "polygon": [
+            [
+              533.4,
+              509.4
+            ],
+            [
+              884.6,
+              232.5
+            ],
+            [
+              876,
+              799.2
+            ],
+            [
+              531.7,
+              519.2
+            ]
+          ],
+          "uprightRotation": -90,
+          "physical": {
+            "widthIn": 95.4,
+            "heightIn": 63.7
+          }
+        },
+        {
+          "id": "roof-back",
+          "group": "roof",
+          "side": "back",
+          "polygon": [
+            [
+              226.7,
+              115.4
+            ],
+            [
+              787.2,
+              124.5
+            ],
+            [
+              503.4,
+              473.4
+            ],
+            [
+              217.1,
+              120.7
+            ]
+          ],
+          "uprightRotation": 180,
+          "physical": {
+            "widthIn": 95.4,
+            "heightIn": 63.6
+          }
+        },
+        {
+          "id": "roof-left",
+          "group": "roof",
+          "side": "left",
+          "polygon": [
+            [
+              113,
+              228.1
+            ],
+            [
+              459.7,
+              513.1
+            ],
+            [
+              104.7,
+              794.3
+            ]
+          ],
+          "uprightRotation": 90,
+          "physical": {
+            "widthIn": 95.4,
+            "heightIn": 63.7
+          }
+        }
+      ]
+    }
+  }
+}
