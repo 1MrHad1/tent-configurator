@@ -13,7 +13,7 @@
 <div
   class="product-configurator"
   data-product-configurator
-  data-configurator-url="{{ settings.configurator_url | default: 'https://tent-configurator.netlify.app' }}"
+  data-configurator-url="{{ settings.configurator_url | default: 'https://haseeb-tent-configurator.netlify.app' }}"
   data-product="{{ configurator_product | default: 'canopy-tent' }}"
   data-variant-id="{{ variant.id }}"
   data-options="{% if preset %}{{ preset | json | escape }}{% else %}{}{% endif %}"
@@ -25,7 +25,7 @@
     <span data-configurator-price>{{ variant.price | money }}</span>
   </p>
 </div>
-<script src="{{ settings.configurator_url | default: 'https://tent-configurator.netlify.app' }}/embed/product-configurator.js" defer></script>
+<script src="{{ settings.configurator_url | default: 'https://haseeb-tent-configurator.netlify.app' }}/embed/product-configurator.js" defer></script>
 
 {%- comment -%}
   Line item properties written by the configurator appear in cart/checkout automatically.

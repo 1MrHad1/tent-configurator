@@ -2,9 +2,9 @@
 
 A working replica of a custom canopy tent configurator: design each roof panel and valance in 2D, see it live on the 3D tent, get an API price, and hand the configuration, signed price and production PDF to a Shopify cart through an iframe.
 
-**Live demo:** https://tent-configurator.netlify.app ·
-**Shopify embed demo:** https://tent-configurator.netlify.app/demo-store/ ·
-**Second product on the same engine:** https://tent-configurator.netlify.app/?product=backdrop-banner
+**Live demo:** https://haseeb-tent-configurator.netlify.app ·
+**Shopify embed demo:** https://haseeb-tent-configurator.netlify.app/demo-store/ ·
+**Second product on the same engine:** https://haseeb-tent-configurator.netlify.app/?product=backdrop-banner
 
 React 19 · TypeScript · Three.js (React Three Fiber) · Konva · Zustand · Zod · jsPDF · Netlify Functions + Blobs
 
