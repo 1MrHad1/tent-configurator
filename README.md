@@ -159,6 +159,7 @@ npm install
 npm run dev            # http://localhost:5173 (API included)
 npm test               # pricing, signing, geometry, store, client and API tests
 npm run check          # lint + typecheck + tests (what CI runs, plus the build)
+npm run e2e            # headless Chrome: rapid size/package switching keeps exactly one tent visible
 npm run build          # type-check + production build
 npm run build:models   # re-run the model pipeline from assets-src/models
 ```

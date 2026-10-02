@@ -81,6 +81,12 @@ function Scene({ compact }: { compact: boolean }) {
   const [bounds, setBounds] = useState<Sphere | null>(null);
   const controls = useRef<CameraControls>(null);
 
+  const threeScene = useThree((s) => s.scene);
+  useEffect(() => {
+    // Dev-only handle for scripted end-to-end checks (see main.tsx); stripped from production.
+    if (import.meta.env.DEV) Object.assign(window, { __scene: threeScene });
+  }, [threeScene]);
+
   const frameKey = product.scene.partVisibility?.map((r) => design.options[r.option]).join('|') ?? '';
 
   return (
@@ -93,7 +99,11 @@ function Scene({ compact }: { compact: boolean }) {
         <Lightformer form="rect" intensity={1.1} position={[-6, 2, 4]} rotation-y={Math.PI / 3} scale={[6, 4, 1]} />
         <Lightformer form="rect" intensity={0.8} position={[6, 2, -4]} rotation-y={-Math.PI / 3} scale={[6, 4, 1]} />
       </Environment>
-      <ProductModel key={geometry.model} url={geometry.model} texture={texture} product={product} design={design} onBounds={setBounds} controls={controls} />
+      {/* The model suspends on its own, so switching size never hides lights, camera or texture. */}
+      <Suspense fallback={null}>
+        <ProductModel key={geometry.model} url={geometry.model} texture={texture} product={product} design={design} onBounds={setBounds} controls={controls} />
+      </Suspense>
+      <PreloadVariants product={product} />
       {bounds && (
         <ContactShadows
           key={`${geometry.model}:${frameKey}`}
@@ -187,6 +197,22 @@ function useAtlasTexture(product: ProductDefinition, design: Design, shadeUrl?: 
   return { texture: state.texture, flush };
 }
 
+/**
+ * Once the first model is on screen, fetch the product's other sizes in the background so
+ * switching size is instant. Runs when the browser is idle; skipped on data-saver connections.
+ */
+function PreloadVariants({ product }: { product: ProductDefinition }) {
+  useEffect(() => {
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (connection?.saveData) return;
+    const urls = [...new Set(Object.values(product.geometry).map((g) => g.model))];
+    const run = () => urls.forEach((url) => useGLTF.preload(url, false, true));
+    const id = 'requestIdleCallback' in window ? requestIdleCallback(run, { timeout: 4000 }) : setTimeout(run, 1500);
+    return () => ('cancelIdleCallback' in window ? cancelIdleCallback(id as number) : clearTimeout(id as ReturnType<typeof setTimeout>));
+  }, [product]);
+  return null;
+}
+
 function mixHex(a: string, b: string, t: number) {
   return '#' + new Color(a).lerp(new Color(b), t).getHexString();
 }
@@ -206,7 +232,12 @@ function ProductModel({
   onBounds: (s: Sphere) => void;
   controls: React.RefObject<CameraControls | null>;
 }) {
-  const { scene } = useGLTF(url, false, true);
+  const gltf = useGLTF(url, false, true);
+  // useGLTF caches one scene object per URL. React Suspense hides on-screen objects (sets
+  // `visible = false`) while another size loads, so rendering the cached object directly would
+  // bring it back hidden the next time that size is chosen. Each mount gets its own clone;
+  // geometry, materials and textures are shared, so this costs only the node hierarchy.
+  const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
   const invalidate = useThree((s) => s.invalidate);
   const drag = useRef<{ layerId: string; surfaceId: string } | null>(null);
 
