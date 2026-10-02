@@ -23,6 +23,7 @@ const PATHS = {
   spread: 'M4 6h6v5H4zM14 6h6v5h-6zM4 15h6v4H4zM14 15h6v4h-6z',
   alert: 'M12 9v4.5M12 17h.01M10.3 4.2 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z',
   info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01',
+  grid: 'M4 4h16v16H4zM4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16',
 } as const;
 
 export type IconName = keyof typeof PATHS;

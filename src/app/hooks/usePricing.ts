@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { customizationFacts } from '../../core/design/facts';
 import { formatMoney } from '../../core/pricing/client';
 import type { Catalog, Quote } from '../../core/pricing/types';
@@ -16,35 +16,41 @@ export function useQuote() {
   const design = useConfigurator((s) => s.design);
   const facts = useMemo(() => customizationFacts(product, design), [product, design]);
   const key = JSON.stringify([facts.effectiveOptions, design.quantity, facts.printedSurfaces]);
-  const [state, setState] = useState<{ quote: Quote | null; loading: boolean; error: string | null }>({
-    quote: null,
-    loading: true,
-    error: null,
-  });
+  // Each result records the pricing key it answers, so "loading" is derived: the latest
+  // result is for an older key. No state is set synchronously inside the effect.
+  const [result, setResult] = useState<{ key: string; quote: Quote | null; error: string | null } | null>(null);
   const designRef = useRef(design);
-  designRef.current = design;
+  useLayoutEffect(() => {
+    designRef.current = design;
+  });
 
   useEffect(() => {
     const controller = new AbortController();
-    setState((s) => ({ ...s, loading: true }));
     const timer = setTimeout(() => {
       pricing
         .quote(designRef.current, controller.signal)
         .then((quote) => {
-          setState({ quote, loading: false, error: null });
+          setResult({ key, quote, error: null });
           bridge?.send({ type: 'price', total: quote.total, currency: quote.currency, formatted: formatMoney(quote.total, quote.currency) });
         })
         .catch((error: Error) => {
-          if (error.name !== 'AbortError') setState((s) => ({ ...s, loading: false, error: error.message }));
+          if (error.name !== 'AbortError') setResult((r) => ({ key, quote: r?.quote ?? null, error: error.message }));
         });
     }, 220);
     return () => {
       clearTimeout(timer);
       controller.abort();
     };
+    // `key` is the trigger (price-relevant facts); the design itself is read from the ref.
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
   }, [key, pricing, bridge]);
 
-  return { ...state, facts };
+  return {
+    quote: result?.quote ?? null,
+    error: result?.key === key ? result.error : null,
+    loading: result?.key !== key,
+    facts,
+  };
 }
 
 /** Price hints for option buttons, relative to the current selection. */

@@ -1,4 +1,5 @@
-import { isOptionVisible } from '../design/factory';
+import { nearestPantone } from '../color/pantone';
+import { isOptionVisible, surfacesFor } from '../design/factory';
 import { customizationFacts } from '../design/facts';
 import type { Design } from '../design/schema';
 import type { CartLine } from '../embed/protocol';
@@ -25,6 +26,7 @@ export function buildCartLine(product: ProductDefinition, design: Design, quote:
   visible['Printed panels'] = facts.printedSurfaces.length
     ? facts.printedSurfaces.map((id) => product.surfaceLabels[id] ?? id).join(', ')
     : 'Colour only';
+  visible['Panel colours'] = describePanelColours(product, design);
   visible['Configured price'] = `${formatMoney(quote.unitPrice, quote.currency)} each`;
   if (saved) {
     visible['Design ID'] = saved.designId;
@@ -48,4 +50,37 @@ export function buildCartLine(product: ProductDefinition, design: Design, quote:
     hidden._preview_url = saved.links.preview;
   }
   return { variantId: quote.variant.id, quantity: quote.quantity, properties: { ...visible, ...hidden } };
+}
+
+/**
+ * "Roof panels: #2647C8 (~PMS 286 C) · Valances: #161616 (~PMS Black C)". Panels sharing a
+ * colour are grouped, and a complete surface group is named by the group, not panel by panel.
+ */
+export function describePanelColours(product: ProductDefinition, design: Design): string {
+  const surfaces = surfacesFor(product, design);
+  const byColour = new Map<string, string[]>();
+  for (const surface of surfaces) {
+    const fill = design.surfaces[surface.id].fill.toUpperCase();
+    byColour.set(fill, [...(byColour.get(fill) ?? []), surface.id]);
+  }
+  return [...byColour]
+    .map(([hex, ids]) => {
+      let where: string[];
+      if (ids.length === surfaces.length) where = ['All panels'];
+      else {
+        where = [];
+        const remaining = new Set(ids);
+        for (const group of product.surfaceGroups) {
+          const members = surfaces.filter((s) => s.group === group.id).map((s) => s.id);
+          if (members.length > 1 && members.every((id) => remaining.has(id))) {
+            where.push(group.label);
+            members.forEach((id) => remaining.delete(id));
+          }
+        }
+        where.push(...[...remaining].map((id) => product.surfaceLabels[id] ?? id));
+      }
+      const pms = nearestPantone(hex);
+      return `${where.join(', ')}: ${hex} (${pms.exact ? '' : '~'}PMS ${pms.code})`;
+    })
+    .join(' · ');
 }

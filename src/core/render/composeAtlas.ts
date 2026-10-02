@@ -4,7 +4,7 @@
  */
 import { geometryFor, isSurfaceAvailable } from '../design/factory';
 import type { Design } from '../design/schema';
-import { atlasToFrame, offsetConvexPolygon, surfaceFrame, type SurfaceFrame } from '../geometry';
+import { atlasToFrame, offsetConvexPolygon, surfaceFrame, UNITS_PER_INCH, type SurfaceFrame } from '../geometry';
 import type { ProductDefinition, SurfaceDef, Vec2 } from '../product/types';
 import { drawPlacedLayer, type ImageLookup, type ImageSource } from './drawLayer';
 
@@ -22,6 +22,8 @@ export interface ComposeOptions {
    * 'editor' uses the 2D editor's uniform scale, so artwork keeps true proportions.
    */
   layout?: 'texture' | 'editor';
+  /** Overlay a 1-foot grid, panel names and an "up" arrow: proves the UV mapping visually. */
+  debugGrid?: boolean;
 }
 
 const frameCache = new WeakMap<SurfaceDef, SurfaceFrame>();
@@ -73,7 +75,7 @@ export function composeAtlas(
   product: ProductDefinition,
   design: Design,
   images: ImageLookup,
-  { size, bleed = 0, shade, background, layout = 'texture' }: ComposeOptions,
+  { size, bleed = 0, shade, background, layout = 'texture', debugGrid = false }: ComposeOptions,
 ) {
   const k = size / product.atlasSize;
   ctx.save();
@@ -93,12 +95,50 @@ export function composeAtlas(
     if (texture) ctx.scale(frame.atlasScale[0], frame.atlasScale[1]);
     else ctx.scale(frame.editorScale, frame.editorScale);
     drawSurfaceInFrame(ctx, product, design, surface, images, outline);
+    if (debugGrid) drawDebugGrid(ctx, product, frame);
     ctx.restore();
   }
   if (shade) {
     ctx.globalCompositeOperation = 'multiply';
     ctx.drawImage(shade, 0, 0, product.atlasSize, product.atlasSize);
   }
+  ctx.restore();
+}
+
+/** Grid every foot, the panel's name and an arrow pointing to its "up" edge, in frame units. */
+function drawDebugGrid(ctx: CanvasRenderingContext2D, product: ProductDefinition, frame: SurfaceFrame) {
+  const foot = 12 * UNITS_PER_INCH;
+  const [w, h] = [frame.width / 2, frame.height / 2];
+  ctx.save();
+  tracePolygon(ctx, frame.localPolygon);
+  ctx.clip();
+  ctx.lineWidth = frame.width / 400;
+  for (let x = 0; x <= w; x += foot) {
+    for (const sx of x === 0 ? [0] : [x, -x]) {
+      ctx.strokeStyle = sx === 0 ? 'rgba(220,30,60,0.9)' : 'rgba(0,0,0,0.45)';
+      ctx.beginPath();
+      ctx.moveTo(sx, -h);
+      ctx.lineTo(sx, h);
+      ctx.stroke();
+    }
+  }
+  for (let y = 0; y <= h; y += foot) {
+    for (const sy of y === 0 ? [0] : [y, -y]) {
+      ctx.strokeStyle = sy === 0 ? 'rgba(30,90,220,0.9)' : 'rgba(0,0,0,0.45)';
+      ctx.beginPath();
+      ctx.moveTo(-w, sy);
+      ctx.lineTo(w, sy);
+      ctx.stroke();
+    }
+  }
+  const fontPx = Math.min(frame.height * 0.14, frame.width * 0.05);
+  ctx.fillStyle = '#000';
+  ctx.font = `700 ${fontPx}px Inter, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const label = product.surfaceLabels[frame.surface.id] ?? frame.surface.id;
+  ctx.fillText(`${label} · ${frame.surface.physical.widthIn.toFixed(0)}″ × ${frame.surface.physical.heightIn.toFixed(0)}″`, 0, -fontPx * 0.8);
+  ctx.fillText('↑ UP', 0, fontPx * 0.8);
   ctx.restore();
 }
 

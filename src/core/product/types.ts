@@ -49,6 +49,10 @@ export interface Swatch {
 
 export interface FontDef {
   family: string;
+  /** Short style description shown in the picker, e.g. "Condensed". */
+  label: string;
+  /** Whether the font family ships a true italic (otherwise the browser slants it). */
+  italic?: boolean;
   /** Weights the font is loaded in; the text panel only offers these. */
   weights: number[];
 }

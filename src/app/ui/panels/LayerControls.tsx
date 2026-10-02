@@ -1,6 +1,6 @@
 import { geometryFor } from '../../../core/design/factory';
 import type { Layer } from '../../../core/design/schema';
-import { useConfigurator } from '../../../core/state/store';
+import { getConfigurator, useConfigurator } from '../../../core/state/store';
 import { IconButton, Slider } from '../controls';
 import { Icon } from '../Icon';
 
@@ -8,7 +8,7 @@ import { Icon } from '../Icon';
 export function LayerControls({ layer, surfaceId }: { layer: Layer; surfaceId: string }) {
   const product = useConfigurator((s) => s.product);
   const design = useConfigurator((s) => s.design);
-  const { updateLayer, arrangeLayer, duplicateLayer, removeLayer, copyLayerToGroup } = useConfigurator.getState();
+  const { updateLayer, arrangeLayer, duplicateLayer, removeLayer, copyLayerToGroup } = getConfigurator();
   const surface = geometryFor(product, design).surfaces.find((s) => s.id === surfaceId);
   const group = product.surfaceGroups.find((g) => g.id === surface?.group);
   const groupSize = geometryFor(product, design).surfaces.filter((s) => s.group === surface?.group).length;

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { parseColor } from '../../core/color/pantone';
 import type { Swatch } from '../../core/product/types';
 import { useConfigurator } from '../../core/state/store';
@@ -84,16 +84,18 @@ export function Segmented<T extends string>({
 
 /** Swatches, a native picker and a hex / Pantone text field. */
 export function ColorField({ value, onChange, swatches, label }: { value: string; onChange: (hex: string) => void; swatches: Swatch[]; label: string }) {
-  const [text, setText] = useState(value.toUpperCase());
-  const [invalid, setInvalid] = useState(false);
-  useEffect(() => {
-    setText(value.toUpperCase());
-    setInvalid(false);
-  }, [value]);
+  // A draft belongs to the value it was typed against; when the colour changes elsewhere
+  // (a swatch, undo) the field simply shows the new value.
+  const [draft, setDraft] = useState<{ for: string; text: string; invalid: boolean } | null>(null);
+  const live = draft?.for === value ? draft : null;
+  const text = live?.text ?? value.toUpperCase();
+  const invalid = live?.invalid ?? false;
   const commit = () => {
     const parsed = parseColor(text);
-    if (parsed) onChange(parsed);
-    else setInvalid(true);
+    if (parsed) {
+      setDraft(null);
+      onChange(parsed);
+    } else setDraft({ for: value, text, invalid: true });
   };
   return (
     <div className="field">
@@ -123,10 +125,7 @@ export function ColorField({ value, onChange, swatches, label }: { value: string
           aria-label={`${label} hex or Pantone`}
           value={text}
           placeholder="#E9B44C or Pantone 143 C"
-          onChange={(e) => {
-            setText(e.target.value);
-            setInvalid(false);
-          }}
+          onChange={(e) => setDraft({ for: value, text: e.target.value, invalid: false })}
           onBlur={commit}
           onKeyDown={(e) => e.key === 'Enter' && commit()}
         />

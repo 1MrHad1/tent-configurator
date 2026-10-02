@@ -17,6 +17,7 @@ import type { ProductDefinition } from '../product/types';
 import { formatMoneyPlain } from '../pricing/client';
 import type { Quote } from '../pricing/types';
 import { ensureImages, imageLookup } from '../assets/images';
+import { nearestPantone } from '../color/pantone';
 import { frameOf, renderSurfaceUpright, surfaceFill } from '../render/composeAtlas';
 import { imageBox, layoutText } from '../render/drawLayer';
 
@@ -125,11 +126,16 @@ export async function buildProductionPdf(input: PdfInput): Promise<Blob> {
   header('Production summary');
   const [hero, ...rest] = previews;
   if (hero) doc.addImage(hero.dataUrl, 'JPEG', PAGE.m, 22, 170, 112);
-  rest.slice(0, 2).forEach((p, i) => {
-    doc.addImage(p.dataUrl, 'JPEG', PAGE.m + i * 86, 138, 84, 55);
+  // Remaining views (front, back, left, right…) in one row under the hero render.
+  const thumbs = rest.slice(0, 4);
+  const gap = 2.6;
+  const thumbW = (170 - gap * (Math.max(thumbs.length, 1) - 1)) / Math.max(thumbs.length, 1);
+  thumbs.forEach((p, i) => {
+    const x = PAGE.m + i * (thumbW + gap);
+    doc.addImage(p.dataUrl, 'JPEG', x, 138, thumbW, thumbW / 1.5);
     doc.setFontSize(7);
     doc.setTextColor(MUTED);
-    doc.text(p.label, PAGE.m + i * 86 + 2, 191);
+    doc.text(p.label, x + 1.5, 138 + thumbW / 1.5 + 3.5);
   });
 
   const cx = 196;
@@ -193,7 +199,9 @@ export async function buildProductionPdf(input: PdfInput): Promise<Blob> {
   const tableTop = 34;
   doc.setFontSize(8);
   doc.setTextColor(MUTED);
-  ['Panel', 'Finished size (W × H)', 'Background', 'Layers', 'Status'].forEach((h, i) => doc.text(h, PAGE.m + [0, 52, 104, 140, 160][i], tableTop));
+  ['Panel', 'Finished size (W × H)', 'Background', 'Nearest Pantone', 'Layers', 'Status'].forEach((h, i) =>
+    doc.text(h, PAGE.m + [0, 52, 104, 138, 178, 196][i], tableTop),
+  );
   surfaces.forEach((s, i) => {
     const ry = tableTop + 7 + i * 7;
     const available = isSurfaceAvailable(product, s.id, design.options);
@@ -206,15 +214,17 @@ export async function buildProductionPdf(input: PdfInput): Promise<Blob> {
     doc.setDrawColor(RULE);
     doc.rect(PAGE.m + 104, ry - 3.2, 4, 4, 'FD');
     doc.text(fill.toUpperCase(), PAGE.m + 110, ry);
-    doc.text(String(available ? (design.surfaces[s.id]?.layers.length ?? 0) : 0), PAGE.m + 140, ry);
+    const pms = nearestPantone(fill);
+    doc.text(available ? `${pms.exact ? '' : '~ '}PMS ${pms.code}` : '-', PAGE.m + 138, ry);
+    doc.text(String(available ? (design.surfaces[s.id]?.layers.length ?? 0) : 0), PAGE.m + 178, ry);
     doc.setTextColor(available ? INK : MUTED);
-    doc.text(available ? (design.surfaces[s.id]?.layers.length ? 'Printed artwork' : 'Colour only') : 'Not printed', PAGE.m + 160, ry);
+    doc.text(available ? (design.surfaces[s.id]?.layers.length ? 'Printed artwork' : 'Colour only') : 'Not printed', PAGE.m + 196, ry);
   });
   // Upright thumbnails of every panel, so the layout page reads at a glance.
-  const thumbs = surfaces.filter((s) => isSurfaceAvailable(product, s.id, design.options));
-  const tw = (PAGE.w - PAGE.m * 2 - (Math.min(thumbs.length, 4) - 1) * 6) / Math.min(thumbs.length, 4);
+  const panels = surfaces.filter((s) => isSurfaceAvailable(product, s.id, design.options));
+  const tw = (PAGE.w - PAGE.m * 2 - (Math.min(panels.length, 4) - 1) * 6) / Math.min(panels.length, 4);
   let ty = tableTop + 12 + surfaces.length * 7;
-  thumbs.forEach((s, i) => {
+  panels.forEach((s, i) => {
     const col = i % 4;
     if (i > 0 && col === 0) ty += 40;
     const canvas = renderSurfaceUpright(product, design, s, images, 600);

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { runCheckout, type CheckoutResult, type CheckoutStep, type PreviewRenderer } from '../../core/commerce/checkout';
+import { previewViewIds, runCheckout, type CheckoutResult, type CheckoutStep, type PreviewRenderer } from '../../core/commerce/checkout';
 import { pruneUnusedAssets } from '../../core/design/factory';
 import { buildProductionPdf } from '../../core/pdf/productionPdf';
 import { formatMoney } from '../../core/pricing/client';
-import { useConfigurator } from '../../core/state/store';
+import { getConfigurator } from '../../core/state/store';
 import { useServices } from '../services';
 import { Icon } from './Icon';
 
@@ -46,15 +46,15 @@ export function CheckoutDialog({ intent, onClose }: { intent: 'cart' | 'pdf'; on
     dialog.current?.showModal();
     if (started.current) return;
     started.current = true;
-    const { product } = useConfigurator.getState();
-    const design = pruneUnusedAssets(useConfigurator.getState().design);
+    const { product } = getConfigurator();
+    const design = pruneUnusedAssets(getConfigurator().design);
     (async () => {
       const previews = await waitForPreviews(services.previews);
       if (intent === 'pdf') {
         setStep('pricing');
         const quote = await services.pricing.quote(design);
         setStep('rendering');
-        const shots = await previews.capture(product.views.slice(0, 3).map((v) => v.id));
+        const shots = await previews.capture(previewViewIds(product));
         setStep('pdf');
         const pdf = await buildProductionPdf({ product, design, quote, previews: shots });
         downloadBlob(pdf, `${product.id}-production-summary.pdf`);

@@ -19,10 +19,12 @@ export class HttpDesignStore implements DesignStore {
   constructor(private readonly baseUrl = '/api') {}
 
   save(design: Design, quote: Quote) {
-    return requestJson<SavedDesign>(`${this.baseUrl}/designs`, {
-      method: 'POST',
-      body: JSON.stringify({ productId: design.productId, design, quote }),
-    });
+    // Not retried: a timed-out save may still have succeeded, and a retry would duplicate it.
+    return requestJson<SavedDesign>(
+      `${this.baseUrl}/designs`,
+      { method: 'POST', body: JSON.stringify({ productId: design.productId, design, quote }) },
+      { timeoutMs: 30000 },
+    );
   }
 
   async attachFile(designId: string, kind: 'pdf' | 'preview', file: Blob) {
@@ -35,6 +37,6 @@ export class HttpDesignStore implements DesignStore {
   }
 
   load(designId: string) {
-    return requestJson<{ design: Design; quote: Quote }>(`${this.baseUrl}/designs/${encodeURIComponent(designId)}`);
+    return requestJson<{ design: Design; quote: Quote }>(`${this.baseUrl}/designs/${encodeURIComponent(designId)}`, {}, { retries: 2 });
   }
 }

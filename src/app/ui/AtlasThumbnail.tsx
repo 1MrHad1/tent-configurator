@@ -19,6 +19,8 @@ export function AtlasThumbnail({ onOpen }: { onOpen: () => void }) {
       composeAtlas(el.getContext('2d')!, product, design, imageLookup(design.assets), { size: el.width, background: '#ececef', layout: 'editor' });
     });
     return () => cancelAnimationFrame(frame);
+    // `tick` is a trigger: redraw once fonts or images finish loading.
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
   }, [product, design, tick]);
 
   return (

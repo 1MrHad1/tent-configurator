@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { createAsset } from '../../../core/assets/upload';
 import type { ImageLayer } from '../../../core/design/schema';
-import { findLayer, useConfigurator } from '../../../core/state/store';
+import { getConfigurator, findLayer, useConfigurator } from '../../../core/state/store';
 import { Slider } from '../controls';
 import { Icon } from '../Icon';
 import { LayerControls } from './LayerControls';
@@ -11,7 +11,7 @@ export function UploadsPanel({ onError }: { onError: (message: string) => void }
   const product = useConfigurator((s) => s.product);
   const design = useConfigurator((s) => s.design);
   const selectedLayerId = useConfigurator((s) => s.selectedLayerId);
-  const { addImage, updateLayer, removeAsset } = useConfigurator.getState();
+  const { addImage, updateLayer, removeAsset } = getConfigurator();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const found = findLayer(design, selectedLayerId);

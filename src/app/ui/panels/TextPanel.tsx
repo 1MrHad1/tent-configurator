@@ -1,5 +1,5 @@
 import type { TextLayer } from '../../../core/design/schema';
-import { findLayer, useConfigurator } from '../../../core/state/store';
+import { getConfigurator, findLayer, useConfigurator } from '../../../core/state/store';
 import { ColorField, Field, Segmented, Slider } from '../controls';
 import { Icon } from '../Icon';
 import { LayerControls } from './LayerControls';
@@ -9,7 +9,7 @@ export function TextPanel() {
   const product = useConfigurator((s) => s.product);
   const design = useConfigurator((s) => s.design);
   const selectedLayerId = useConfigurator((s) => s.selectedLayerId);
-  const { addText, updateLayer, checkpoint } = useConfigurator.getState();
+  const { addText, updateLayer, checkpoint } = getConfigurator();
   const found = findLayer(design, selectedLayerId);
   const layer = found?.layer.type === 'text' ? (found.layer as TextLayer) : null;
   const set = (patch: Partial<TextLayer>) => layer && updateLayer(layer.id, patch);
@@ -45,7 +45,7 @@ export function TextPanel() {
             >
               {product.fonts.map((f) => (
                 <option key={f.family} value={f.family} style={{ fontFamily: `"${f.family}"` }}>
-                  {f.family}
+                  {f.family} ({f.label})
                 </option>
               ))}
             </select>

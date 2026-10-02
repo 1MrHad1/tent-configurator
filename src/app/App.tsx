@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { findLayer, useConfigurator, type ToolId } from '../core/state/store';
+import { getConfigurator, findLayer, useConfigurator, type ToolId } from '../core/state/store';
 import { clamp } from '../core/geometry';
 import { Editor2D } from './editor/Editor2D';
 import { QuoteContext, useQuote } from './hooks/usePricing';
@@ -35,7 +35,7 @@ export function App() {
   const product = useConfigurator((s) => s.product);
   const selectedLayerId = useConfigurator((s) => s.selectedLayerId);
   const design = useConfigurator((s) => s.design);
-  const { setTool, setMode } = useConfigurator.getState();
+  const { setTool, setMode } = getConfigurator();
   const [toast, setToast] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState<false | 'cart' | 'pdf'>(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -52,7 +52,7 @@ export function App() {
   useEffect(() => {
     if (selectedType === 'text') setTool('text');
     if (selectedType === 'image') setTool('uploads');
-  }, [selectedLayerId, selectedType, setTool]);
+  }, [selectedType, setTool]);
 
   useKeyboardShortcuts();
 
@@ -139,7 +139,7 @@ function useKeyboardShortcuts() {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (target.closest('input, textarea, select, [contenteditable]')) return;
-      const s = useConfigurator.getState();
+      const s = getConfigurator();
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 'z') {
         e.preventDefault();

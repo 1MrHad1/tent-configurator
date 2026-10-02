@@ -9,6 +9,11 @@ import { buildProductionPdf } from '../pdf/productionPdf';
 import type { CommerceAdapter, CartResult } from './adapters';
 import { buildCartLine } from './cartLine';
 
+/** Hero view first, then every side view: what production and the order need to see. */
+export function previewViewIds(product: ProductDefinition): string[] {
+  return product.views.filter((v) => v.id !== 'top').slice(0, 5).map((v) => v.id);
+}
+
 export type CheckoutStep = 'pricing' | 'rendering' | 'saving' | 'pdf' | 'cart' | 'done';
 
 export interface PreviewRenderer {
@@ -52,7 +57,7 @@ export async function runCheckout(deps: {
   const quote = await deps.pricing.quote(design);
 
   onStep?.('rendering');
-  const previews = await deps.previews.capture(product.views.slice(0, 3).map((v) => v.id));
+  const previews = await deps.previews.capture(previewViewIds(product));
 
   onStep?.('saving');
   let saved: SavedDesign | null = null;

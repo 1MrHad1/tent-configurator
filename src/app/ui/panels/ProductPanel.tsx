@@ -1,5 +1,5 @@
 import { isOptionVisible } from '../../../core/design/factory';
-import { useConfigurator } from '../../../core/state/store';
+import { getConfigurator, useConfigurator } from '../../../core/state/store';
 import { useCatalog } from '../../hooks/usePricing';
 import { Field } from '../controls';
 
@@ -9,7 +9,7 @@ export function ProductPanel() {
   const options = useConfigurator((s) => s.design.options);
   const quantity = useConfigurator((s) => s.design.quantity);
   const notes = useConfigurator((s) => s.design.notes);
-  const { setOption, setQuantity, setNotes } = useConfigurator.getState();
+  const { setOption, setQuantity, setNotes } = getConfigurator();
   const catalog = useCatalog();
 
   return (

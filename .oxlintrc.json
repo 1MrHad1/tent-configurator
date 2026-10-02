@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "import", "unicorn"],
+  "categories": { "correctness": "error", "suspicious": "warn" },
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "react/react-in-jsx-scope": "off",
+    "react/immutability": "off",
+    "no-underscore-dangle": "off",
+    "import/no-unassigned-import": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/no-array-reverse": "off",
+    "unicorn/consistent-function-scoping": "off"
+  },
+  "ignorePatterns": ["dist", ".netlify", "shopify/functions", "public/embed"]
+}

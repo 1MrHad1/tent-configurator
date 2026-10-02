@@ -9,7 +9,7 @@ import { clamp, pointInPolygon, type SurfaceFrame } from '../../core/geometry';
 import type { SurfaceDef } from '../../core/product/types';
 import { frameOf, surfaceFill } from '../../core/render/composeAtlas';
 import { drawLayerContent, layerBox, type ImageLookup } from '../../core/render/drawLayer';
-import { useConfigurator } from '../../core/state/store';
+import { getConfigurator, useConfigurator } from '../../core/state/store';
 import { useElementSize } from '../hooks/useElementSize';
 import { useRenderTick } from '../hooks/useRenderTick';
 import { useEditorView } from './editorView';
@@ -34,7 +34,7 @@ export function Editor2D({ onUploadError }: { onUploadError: (message: string) =
   const design = useConfigurator((s) => s.design);
   const selectedSurfaceId = useConfigurator((s) => s.selectedSurfaceId);
   const selectedLayerId = useConfigurator((s) => s.selectedLayerId);
-  const { selectSurface, selectLayer, addImage } = useConfigurator.getState();
+  const { selectSurface, selectLayer, addImage } = getConfigurator();
   const { zoom, pan, setPan, zoomAt } = useEditorView();
 
   const surfaces = geometryFor(product, design).surfaces;
@@ -54,11 +54,13 @@ export function Editor2D({ onUploadError }: { onUploadError: (message: string) =
   const stageX = size.width / 2 - (bounds.x + bounds.w / 2) * scale + pan[0];
   const stageY = size.height / 2 - (bounds.y + bounds.h / 2) * scale + pan[1];
 
+  // Re-attach the transformer after any redraw that can replace or move the selected node.
   useEffect(() => {
     const transformer = transformerRef.current;
     const node = selectedLayerId ? stageRef.current?.findOne(`#${selectedLayerId}`) : undefined;
     transformer?.nodes(node ? [node] : []);
     transformer?.getLayer()?.batchDraw();
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
   }, [selectedLayerId, design, tick, size.width, size.height]);
 
   const atlasPointFromClient = (clientX: number, clientY: number): [number, number] | null => {
@@ -223,7 +225,7 @@ function SurfaceNode({ frame, fill, available, layers, assets, images, label, se
 
 function LayerShape({ layer, frame, assets, images }: { layer: Layer; frame: SurfaceFrame; assets: Record<string, Asset>; images: ImageLookup; tick: number }) {
   const box = layerBox(layer, frame, assets);
-  const { selectLayer, checkpoint, updateLayer } = useConfigurator.getState();
+  const { selectLayer, checkpoint, updateLayer } = getConfigurator();
 
   const readPosition = (node: Konva.Node) => {
     const x = clamp(node.x() / frame.width, -0.5, 0.5);

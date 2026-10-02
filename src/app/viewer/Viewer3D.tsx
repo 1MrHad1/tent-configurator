@@ -22,7 +22,7 @@ import { atlasToFrame, clamp, pointInPolygon } from '../../core/geometry';
 import type { CameraView, ProductDefinition } from '../../core/product/types';
 import { composeAtlas, frameOf, surfaceFill } from '../../core/render/composeAtlas';
 import { layerAtPoint } from '../../core/render/hitTest';
-import { useConfigurator } from '../../core/state/store';
+import { getConfigurator, useConfigurator } from '../../core/state/store';
 import { useRenderTick } from '../hooks/useRenderTick';
 import { useServices } from '../services';
 import { useViewerControls } from './viewerControls';
@@ -127,7 +127,8 @@ function useAtlasTexture(product: ProductDefinition, design: Design, shadeUrl?: 
   const gl = useThree((s) => s.gl);
   const invalidate = useThree((s) => s.invalidate);
   const tick = useRenderTick();
-  const [shade, setShade] = useState<HTMLImageElement | null>(null);
+  const uvGrid = useViewerControls((s) => s.uvGrid);
+  const [loadedShade, setLoadedShade] = useState<{ url: string; img: HTMLImageElement } | null>(null);
 
   const state = useMemo(() => {
     const small = gl.capabilities.maxTextureSize < 4096 || matchMedia('(max-width: 768px)').matches;
@@ -141,30 +142,46 @@ function useAtlasTexture(product: ProductDefinition, design: Design, shadeUrl?: 
     return { canvas, ctx: canvas.getContext('2d')!, texture, size };
   }, [gl]);
 
+  // The shade map belongs to one model; a stale one is ignored rather than cleared in an effect.
+  const shade = shadeUrl && loadedShade?.url === shadeUrl ? loadedShade.img : null;
   useEffect(() => {
-    if (!shadeUrl) return setShade(null);
+    if (!shadeUrl) return;
+    let current = true;
     const img = new Image();
     img.src = shadeUrl;
-    img.decode().then(() => setShade(img), () => setShade(null));
+    img.decode().then(
+      () => current && setLoadedShade({ url: shadeUrl, img }),
+      () => undefined,
+    );
+    return () => {
+      current = false;
+    };
   }, [shadeUrl]);
 
-  const latest = useRef({ product, design, shade });
-  latest.current = { product, design, shade };
+  // `flush` is also called imperatively (before capturing previews), so it reads the latest
+  // inputs from a ref that is synced after each render.
+  const latest = useRef({ product, design, shade, uvGrid });
+  useLayoutEffect(() => {
+    latest.current = { product, design, shade, uvGrid };
+  });
 
   const flush = useMemo(
     () => () => {
-      const { product: p, design: d, shade: s } = latest.current;
-      composeAtlas(state.ctx, p, d, imageLookup(d.assets), { size: state.size, bleed: 5, shade: s, background: p.defaultFill });
+      const { product: p, design: d, shade: s, uvGrid: grid } = latest.current;
+      composeAtlas(state.ctx, p, d, imageLookup(d.assets), { size: state.size, bleed: 5, shade: s, background: p.defaultFill, debugGrid: grid });
       state.texture.needsUpdate = true;
       invalidate();
     },
     [state, invalidate],
   );
 
+  // Recompose (at most once per frame) whenever an input of the texture changes. The inputs
+  // are read through `latest`, so they are listed here only as triggers.
   useEffect(() => {
     const frame = requestAnimationFrame(flush);
     return () => cancelAnimationFrame(frame);
-  }, [flush, product, design, shade, tick]);
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies
+  }, [flush, product, design, shade, tick, uvGrid]);
 
   useEffect(() => () => state.texture.dispose(), [state]);
   return { texture: state.texture, flush };
@@ -240,7 +257,7 @@ function ProductModel({
   const resolveHit = (event: ThreeEvent<PointerEvent | MouseEvent>) => {
     const material = (event.object as Mesh).material as MeshStandardMaterial | undefined;
     if (material?.userData.role !== 'print' || !event.uv) return null;
-    const { design: d, product: p } = useConfigurator.getState();
+    const { design: d, product: p } = getConfigurator();
     const point: [number, number] = [event.uv.x * p.atlasSize, event.uv.y * p.atlasSize];
     const surface = geometryFor(p, d).surfaces.find((s) => pointInPolygon(point, s.polygon) && isSurfaceAvailable(p, s.id, d.options));
     if (!surface) return null;
@@ -251,12 +268,12 @@ function ProductModel({
     <primitive
       object={scene}
       onPointerDown={(event: ThreeEvent<PointerEvent>) => {
-        if (useConfigurator.getState().mode !== '3d') return;
+        if (getConfigurator().mode !== '3d') return;
         const hit = resolveHit(event);
         if (!hit) return;
         const frame = frameOf(hit.surface);
         const layer = layerAtPoint(frame, hit.design.surfaces[hit.surface.id].layers, hit.design.assets, hit.framePoint);
-        const store = useConfigurator.getState();
+        const store = getConfigurator();
         if (!layer) {
           store.selectSurface(hit.surface.id);
           return;
@@ -274,7 +291,7 @@ function ProductModel({
         const hit = resolveHit(event);
         if (!hit || hit.surface.id !== drag.current.surfaceId) return;
         const frame = frameOf(hit.surface);
-        useConfigurator.getState().updateLayer(
+        getConfigurator().updateLayer(
           drag.current.layerId,
           { x: clamp(hit.framePoint[0] / frame.width, -0.5, 0.5), y: clamp(hit.framePoint[1] / frame.height, -0.5, 0.5) },
           { history: false },

@@ -255,3 +255,6 @@ export const useConfigurator = create<ConfiguratorState>()((set, get) => {
     },
   };
 });
+
+/** Non-reactive access to state and actions (event handlers, effects, non-React code). */
+export const getConfigurator = () => useConfigurator.getState();

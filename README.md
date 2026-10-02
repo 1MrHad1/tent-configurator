@@ -8,6 +8,28 @@ A working replica of a custom canopy tent configurator: design each roof panel a
 
 React 19 · TypeScript · Three.js (React Three Fiber) · Konva · Zustand · Zod · jsPDF · Netlify Functions + Blobs
 
+[![CI](https://github.com/1MrHad1/tent-configurator/actions/workflows/ci.yml/badge.svg)](https://github.com/1MrHad1/tent-configurator/actions/workflows/ci.yml) — lint (oxlint), typecheck, 33 tests and the production build on every push.
+
+---
+
+## Against the evaluation criteria
+
+| Criterion | Where to look |
+| --- | --- |
+| **Code quality** | Strict TypeScript, no `any` in app code; lint clean; 33 unit/API tests (`npm run check`); CI on every push. Comments explain *why*, not what. |
+| **Architecture & scalability** | `src/core` is a product-agnostic engine with no React in it; UI in `src/app`; products are data in `src/products`; side effects behind interfaces (`PricingService`, `DesignStore`, `CommerceAdapter`) injected in one place (`src/app/services.tsx`). The API is one `Request → Response` router (`server/router.ts`) that runs as a Netlify Function and as Vite middleware. |
+| **2D/3D synchronisation** | One `Design` object, one renderer (`render/drawLayer.ts`) shared by the Konva editor, the 3D texture and the PDF. Edits flow 2D → 3D, and drag-on-model flows 3D → 2D through the same store. Toggle the **UV grid** (bottom bar) to see the mapping: 1-foot squares stay square on the model because the UV stretch in the supplied files is corrected per panel. |
+| **API integration** | Typed wire contract shared by client and server (`core/pricing/types.ts`); Zod validation with field-level errors; timeouts on every call; retries with backoff only for idempotent calls (quote, catalog, load), never for saves; stale quote requests aborted; requests only when a price-relevant fact changes. |
+| **Shopify integration** | Versioned `postMessage` protocol with origin checks both ways; a framework-free theme script + Liquid snippet; variant resolved server-side; line item properties for the merchant (options, panel colours with Pantone, design ID, PDF link) and hidden ones for the backend (signed quote, config hash); `/api/quote/verify` for a webhook or Function; reference Cart Transform. Demo store shows tamper detection. |
+| **Dynamic pricing** | `server/pricing/quote.ts`: variant per size × package, option add-ons, printing charges per panel group with included allowances, percentage surcharges, quantity tiers. Data-driven price books; option hints computed by the same function so they can't disagree with the quote; HMAC-signed, expiring quotes. |
+| **Configuration / data structure** | Versioned `Design` schema (`core/design/schema.ts`): options, quantity, per-surface fill + ordered layers in physical, size-independent coordinates, assets with size and SHA-256. Normalised on load, canonical hash for quotes, reloadable by id. |
+| **Performance** | Models 10–11 MB → 0.7–0.8 MB; render on demand; one WebGL context; texture recomposed at most once per frame; Three.js lazy-loaded (first load ~220 KB gzip); jsPDF only on export; 1024² texture on phones; DPR capped. |
+| **Reusability** | Second product (`?product=backdrop-banner`) on the unchanged engine. Adding a product: run its GLB through `npm run build:models` (panels are extracted automatically), write a `ProductDefinition`, add a price book. |
+
+## Compared with the reference
+
+The reference (MVP Visuals' tent customiser) is a Next.js + Fabric.js app embedded the same way: an iframe with `variant_id` / `parent_origin` and a postMessage save. This replica matches its editor (2D die-line, uploads, text, background per part or for the whole canopy, Pantone/hex input, swatches, 3D views, undo/redo, zoom, UV debug grid, side views sent with the order) and adds what the brief asks for that it doesn't have: API pricing with a signed quote, a live price, product options and quantity, the production PDF, physical-unit design space, drag-on-model, a layers panel, "copy to all", mobile layout and a second product.
+
 ---
 
 ## What it does
@@ -15,15 +37,15 @@ React 19 · TypeScript · Three.js (React Three Fiber) · Konva · Zustand · Zo
 | Requirement | How it is met |
 | --- | --- |
 | Customise sections independently | 8 panels (4 roof, 4 valance), each with its own background colour and layers. "Copy to all valances / roof panels" for the common case. |
-| Text, image uploads, colours, positioning | Text (6 fonts, weight, italic, size, spacing, outline, colour), JPG/PNG/WebP/SVG uploads (validated, downscaled, hashed), swatches + hex + Pantone codes, drag / rotate / scale / nudge / reorder, undo-redo. |
-| 2D editing and 3D preview, synchronised | Both views read the same design object and draw with the same function. Drag artwork in 2D *or directly on the 3D model*. Selecting a panel turns the 3D thumbnail to face it. |
+| Text, image uploads, colours, positioning | Text (14 fonts, weight, italic, size, spacing, outline, alignment, colour), JPG/PNG/WebP/SVG uploads (validated, downscaled, hashed), swatches + hex + Pantone codes, drag / rotate / scale / nudge / reorder, undo-redo. |
+| 2D editing and 3D preview, synchronised | Both views read the same design object and draw with the same function. Drag artwork in 2D *or directly on the 3D model*. Selecting a panel turns the 3D thumbnail to face it. A UV grid overlay proves the mapping. |
 | Configuration as structured data | A versioned, Zod-validated `Design` JSON (see below). Saved designs reopen with `/?design=<id>`. |
 | Reusable for other products | Products are data (`ProductDefinition`). A second product, a backdrop banner, runs on the unchanged engine. |
 | Responsive, reasonably optimised | Phone layout with a bottom tool sheet; models 10–11 MB → ~0.7–0.8 MB; on-demand rendering; 3D and PDF code split out of the first load. |
 | Embeddable via iframe | Versioned `postMessage` protocol with origin checks, a ~3 KB theme script, a Liquid snippet, and a demo store using all of it. |
 | Pricing from an API | `POST /api/quote` returns a line-by-line, HMAC-signed quote; option price hints come from `GET /api/catalog`. No price is hard-coded in the UI. |
-| Shopify hand-off | Variant id + quantity + line item properties (visible summary, hidden signed quote, design id, PDF link) sent to `/cart/add.js`. |
-| Production PDF | Summary with 3D renders, selections and price, print layout, per-panel artwork specs in inches (fonts, colours, DPI warnings), and the machine-readable configuration. Stored with the design so it can be linked from the order. |
+| Shopify hand-off | Variant id + quantity + line item properties (options, panel colours with nearest Pantone, design id, PDF link; hidden signed quote) sent to `/cart/add.js`. |
+| Production PDF | Summary with 3D renders (orbit + front/back/left/right), selections and price, print layout with nearest Pantone per panel, per-panel artwork specs in inches (fonts, colours, DPI warnings), and the machine-readable configuration. Stored with the design so it can be linked from the order. |
 
 ## Architecture
 
@@ -135,7 +157,8 @@ The same `handleApi(Request): Response` runs as a Netlify Function in production
 ```bash
 npm install
 npm run dev            # http://localhost:5173 (API included)
-npm test               # pricing, signing, geometry and API tests
+npm test               # pricing, signing, geometry, store, client and API tests
+npm run check          # lint + typecheck + tests (what CI runs, plus the build)
 npm run build          # type-check + production build
 npm run build:models   # re-run the model pipeline from assets-src/models
 ```

@@ -1,5 +1,5 @@
 import { geometryFor, isSurfaceAvailable } from '../../../core/design/factory';
-import { useConfigurator } from '../../../core/state/store';
+import { getConfigurator, useConfigurator } from '../../../core/state/store';
 import { IconButton } from '../controls';
 
 /** Every panel and its layers at a glance; the fastest way to find and select artwork. */
@@ -8,7 +8,7 @@ export function LayersPanel() {
   const design = useConfigurator((s) => s.design);
   const selectedSurfaceId = useConfigurator((s) => s.selectedSurfaceId);
   const selectedLayerId = useConfigurator((s) => s.selectedLayerId);
-  const { selectSurface, selectLayer, removeLayer, setTool } = useConfigurator.getState();
+  const { selectSurface, selectLayer, removeLayer, setTool } = getConfigurator();
 
   return (
     <div className="panel-body">
