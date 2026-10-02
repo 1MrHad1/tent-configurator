@@ -60,3 +60,11 @@ export function isOptionVisible(product: ProductDefinition, optionId: string, op
 let counter = 0;
 export const newId = (prefix: string) =>
   `${prefix}_${Date.now().toString(36)}${(counter++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+/** Drops uploads no layer uses any more, so saved designs and PDFs only carry live artwork. */
+export function pruneUnusedAssets(design: Design): Design {
+  const used = new Set(
+    Object.values(design.surfaces).flatMap((s) => s.layers.flatMap((l) => (l.type === 'image' ? [l.assetId] : []))),
+  );
+  return { ...design, assets: Object.fromEntries(Object.entries(design.assets).filter(([id]) => used.has(id))) };
+}

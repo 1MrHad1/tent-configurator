@@ -1,3 +1,4 @@
+import { pruneUnusedAssets } from '../design/factory';
 import type { Design } from '../design/schema';
 import type { CartLine } from '../embed/protocol';
 import type { DesignStore, SavedDesign } from '../persistence/designsClient';
@@ -43,7 +44,8 @@ export async function runCheckout(deps: {
   previews: PreviewRenderer;
   onStep?: (step: CheckoutStep) => void;
 }): Promise<CheckoutResult> {
-  const { product, design, onStep } = deps;
+  const { product, onStep } = deps;
+  const design = pruneUnusedAssets(deps.design);
   const warnings: string[] = [];
 
   onStep?.('pricing');

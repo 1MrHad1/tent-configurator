@@ -197,6 +197,17 @@ body {
   border-color: var(--ink-2);
 }
 
+.button-danger {
+  background: var(--surface);
+  border-color: #f1c4b3;
+  color: var(--danger);
+}
+
+.button-danger:hover:not(:disabled) {
+  background: #fff4ef;
+  border-color: var(--danger);
+}
+
 .button-block {
   width: 100%;
 }
@@ -539,7 +550,34 @@ body {
   gap: 8px;
 }
 
+.asset-tile {
+  position: relative;
+}
+
+.asset-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.asset-remove:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
 .asset {
+  width: 100%;
   aspect-ratio: 1;
   border: 1px solid var(--line-2);
   border-radius: var(--radius-sm);

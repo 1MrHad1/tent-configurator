@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { runCheckout, type CheckoutResult, type CheckoutStep, type PreviewRenderer } from '../../core/commerce/checkout';
+import { pruneUnusedAssets } from '../../core/design/factory';
 import { buildProductionPdf } from '../../core/pdf/productionPdf';
 import { formatMoney } from '../../core/pricing/client';
 import { useConfigurator } from '../../core/state/store';
@@ -45,7 +46,8 @@ export function CheckoutDialog({ intent, onClose }: { intent: 'cart' | 'pdf'; on
     dialog.current?.showModal();
     if (started.current) return;
     started.current = true;
-    const { product, design } = useConfigurator.getState();
+    const { product } = useConfigurator.getState();
+    const design = pruneUnusedAssets(useConfigurator.getState().design);
     (async () => {
       const previews = await waitForPreviews(services.previews);
       if (intent === 'pdf') {

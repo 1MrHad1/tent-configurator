@@ -11,7 +11,7 @@ export function UploadsPanel({ onError }: { onError: (message: string) => void }
   const product = useConfigurator((s) => s.product);
   const design = useConfigurator((s) => s.design);
   const selectedLayerId = useConfigurator((s) => s.selectedLayerId);
-  const { addImage, updateLayer } = useConfigurator.getState();
+  const { addImage, updateLayer, removeAsset } = useConfigurator.getState();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const found = findLayer(design, selectedLayerId);
@@ -41,11 +41,22 @@ export function UploadsPanel({ onError }: { onError: (message: string) => void }
       <p className="panel-note">JPG, PNG, WebP or SVG, up to {Math.round(product.limits.maxUploadBytes / 1048576)} MB. You can also drop files onto a panel.</p>
 
       {Object.values(design.assets).length > 0 && (
-        <div className="asset-grid" aria-label="Your uploads">
+        <div className="asset-grid" role="group" aria-label="Your uploads">
           {Object.values(design.assets).map((asset) => (
-            <button key={asset.id} type="button" className="asset" title={`Add ${asset.name} to the selected panel`} onClick={() => addImage(asset)}>
-              <img src={asset.src} alt={asset.name} />
-            </button>
+            <div key={asset.id} className="asset-tile">
+              <button type="button" className="asset" title={`Add ${asset.name} to the selected panel`} onClick={() => addImage(asset)}>
+                <img src={asset.src} alt={asset.name} />
+              </button>
+              <button
+                type="button"
+                className="asset-remove"
+                aria-label={`Delete upload ${asset.name}`}
+                title="Delete this upload (also removes it from the tent)"
+                onClick={() => removeAsset(asset.id)}
+              >
+                <Icon name="close" size={14} />
+              </button>
+            </div>
           ))}
         </div>
       )}

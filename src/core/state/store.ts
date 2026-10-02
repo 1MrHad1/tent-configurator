@@ -44,6 +44,8 @@ export interface ConfiguratorState {
   addText(surfaceId?: string): void;
   updateLayer(layerId: string, patch: Partial<ImageLayer> | Partial<TextLayer>, opts?: { history?: boolean }): void;
   removeLayer(layerId: string): void;
+  /** Deletes an upload and every layer that uses it (one undo step). */
+  removeAsset(assetId: string): void;
   duplicateLayer(layerId: string): void;
   arrangeLayer(layerId: string, to: 'forward' | 'backward' | 'front' | 'back'): void;
   copyLayerToGroup(layerId: string): void;
@@ -186,6 +188,18 @@ export const useConfigurator = create<ConfiguratorState>()((set, get) => {
       const found = findLayer(get().design, layerId);
       if (!found) return;
       commit(withLayers(get().design, found.surfaceId, (layers) => layers.filter((l) => l.id !== layerId)), { selectedLayerId: null });
+    },
+    removeAsset(assetId) {
+      const { design, selectedLayerId } = get();
+      const surfaces = Object.fromEntries(
+        Object.entries(design.surfaces).map(([id, surface]) => [
+          id,
+          { ...surface, layers: surface.layers.filter((l) => l.type !== 'image' || l.assetId !== assetId) },
+        ]),
+      );
+      const { [assetId]: _removed, ...assets } = design.assets;
+      const next = { ...design, surfaces, assets };
+      commit(next, findLayer(next, selectedLayerId) ? {} : { selectedLayerId: null });
     },
     duplicateLayer(layerId) {
       const found = findLayer(get().design, layerId);

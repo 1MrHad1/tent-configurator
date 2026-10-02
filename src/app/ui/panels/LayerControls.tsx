@@ -26,13 +26,15 @@ export function LayerControls({ layer, surfaceId }: { layer: Layer; surfaceId: s
         <IconButton icon="up" label="Bring forward" onClick={() => arrangeLayer(layer.id, 'forward')} />
         <IconButton icon="down" label="Send backward" onClick={() => arrangeLayer(layer.id, 'backward')} />
         <IconButton icon="copy" label="Duplicate" onClick={() => duplicateLayer(layer.id)} />
-        <IconButton icon="trash" label="Delete" onClick={() => removeLayer(layer.id)} />
       </div>
       {group && groupSize > 1 && (
         <button type="button" className="button button-ghost button-block" onClick={() => copyLayerToGroup(layer.id)}>
           <Icon name="spread" /> Copy to all {group.label.toLowerCase()}
         </button>
       )}
+      <button type="button" className="button button-danger button-block" onClick={() => removeLayer(layer.id)}>
+        <Icon name="trash" /> Delete {layer.type === 'text' ? 'text' : 'image'} from this panel
+      </button>
     </>
   );
 }
